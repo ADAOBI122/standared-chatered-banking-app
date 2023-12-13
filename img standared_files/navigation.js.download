@@ -1,0 +1,315 @@
+/* eslint-disable */
+/**
+ * File navigation.js.
+ *
+ * Handles toggling the navigation menu for small screens and enables TAB key
+ * navigation support for dropdown menus.
+ */
+
+jQuery( document ).ready( function ( $ ) {
+
+	var container, button, menu, links, i, len;
+
+	container = document.getElementById( 'site-navigation' );
+	if ( ! container ) {
+		return;
+	}
+
+	button = container.getElementsByTagName( 'button' )[0];
+	if ( typeof button === 'undefined' ) {
+		return;
+	}
+
+	menu = container.getElementsByTagName( 'ul' )[0];
+
+	// Hide menu toggle button if menu is empty and return early.
+	if ( typeof menu === 'undefined' ) {
+		button.style.display = 'none';
+		return;
+	}
+
+	menu.setAttribute( 'aria-expanded', 'false' );
+	if ( menu.className.indexOf( 'nav-menu' ) === -1 ) {
+		menu.className += ' nav-menu';
+	}
+
+	button.onclick = function () {
+		if ( container.className.indexOf( 'toggled' ) !==  -1 ) {
+			container.className = container.className.replace( ' toggled', '' );
+			button.setAttribute( 'aria-expanded', 'false' );
+			menu.setAttribute( 'aria-expanded', 'false' );
+			$( '.mega-sub-panel' ).removeClass( 'mega-panel-active' );
+		} else {
+			container.className += ' toggled';
+			button.setAttribute( 'aria-expanded', 'true' );
+			menu.setAttribute( 'aria-expanded', 'true' );
+		}
+	};
+	
+	/**
+	 * Sets or removes .focus class on an element.
+	 */
+	function toggleFocus() {
+		var self = this;
+
+		// Move up through the ancestors of the current link until we hit .nav-menu.
+		while ( self.className.indexOf( 'nav-menu' ) === -1 ) {
+
+			// On li elements toggle the class .focus.
+			if ( self.tagName.toLowerCase() === 'li' ) {
+				if ( self.className.indexOf( 'focus' ) !== -1 ) {
+					self.className = self.className.replace( ' focus', '' );
+					self.className = self.className.replace( ' activated-sub', '' );
+					document.getElementById( 'mega-sub-panel' ).classList.remove( 'mega-panel-active' );
+				} else {
+					self.className += ' focus';
+					document.getElementById( 'mega-sub-panel' ).classList.add( 'mega-panel-active' );
+				}
+			}
+
+			self = self.parentElement;
+		}
+	}
+
+	/**
+	 * Toggles `focus` class to allow submenu access on tablets.
+	 */
+
+	var ua = navigator.userAgent.toLowerCase();
+	var isAndroid = ua.indexOf( "android" ) > -1;
+
+	if ( ! isAndroid ) {
+		( function ( container ) {
+			var touchStartFn, i,
+				parentLink = container.querySelectorAll( '.menu-item-has-children > a, .page_item_has_children > a' );
+
+			if ( 'ontouchstart' in window ) {
+				touchStartFn = function ( e ) {
+					var menuItem = this.parentNode, i;
+
+					if ( ! menuItem.classList.contains( 'focus' ) ) {
+						e.preventDefault();
+						for ( i = 0; i < menuItem.parentNode.children.length; ++i ) {
+							if ( menuItem === menuItem.parentNode.children[ i ] ) {
+								continue;
+							}
+							menuItem.parentNode.children[ i ].classList.remove( 'focus' );
+						}
+						menuItem.classList.add( 'focus' );
+					} else {
+						menuItem.classList.remove( 'focus' );
+					}
+				};
+
+				for ( i = 0; i < parentLink.length; ++i ) {
+					parentLink[ i ].addEventListener( 'touchstart', touchStartFn, false );
+				}
+			}
+		} ( container ) );
+	}
+
+	// Tabbing code for accessibility.
+	$( 'ul#sc-mega-menu li > a' ).on( 'keydown', function( e ) {
+		// Get key pressed
+		var keyCode = e.keyCode || e.which;
+
+		if ( keyCode == 9 && e.shiftKey ) {
+			// Tab+shift, go to previous top level link, or last link before.
+			e.preventDefault();
+
+			if ( $( '> li:not(.mobile-menu-link):not(.mega-sub-back)', $( this ).closest( 'li' ).closest( 'ul' ) ).index( $( this ).closest( 'li' ) ) === 0 ) {
+
+				if ( $( this ).closest( 'li' ).closest( 'ul' ).attr( 'id' ) === 'sc-mega-menu' ) {
+					$( '#masthead .site-branding a:last' ).focus();
+				} else {
+					$( '> a', $( this ).closest( 'ul' ).closest( 'li' ) ).trigger( 'click' ).focus();
+				}
+
+				$( '> li.activated-sub > a', $( this ).closest( 'li' ).closest( 'ul' ) ).trigger( 'click' );
+			} else {
+				$( '> li:eq(' + ( $( '> li', $( this ).closest( 'li' ).closest( 'ul' ) ).index( $( this ).closest( 'li' ) ) - 1 ) + ') > a', $( this ).closest( 'li' ).closest( 'ul' ) ).focus();
+			}
+		} else if ( keyCode === 9 ) {
+			// Tab, go to next top level link, or next link after.
+			e.preventDefault();
+
+			if ( ( $( '> li:not(.mobile-menu-link):not(.mega-sub-back)', $( this ).closest( 'li' ).closest( 'ul' ) ).index( $( this ).closest( 'li' ) ) + 1 ) === $( '> li:not(.mobile-menu-link):not(.mega-sub-back)', $( this ).closest( 'li' ).closest( 'ul' ) ).length ) {
+
+				if ( $( this ).closest( 'li' ).closest( 'ul' ).attr( 'id' ) === 'sc-mega-menu' ) {
+					$( '#main a:first' ).focus();
+				} else {
+					$( '> a', $( this ).closest( 'ul' ).closest( 'li' ) ).trigger( 'click' ).focus();
+				}
+
+				$( '> li.activated-sub > a', $( this ).closest( 'li' ).closest( 'ul' ) ).trigger( 'click' );
+			} else {
+				$( '> li:eq(' + ( $( '> li', $( this ).closest( 'li' ).closest( 'ul' ) ).index( $( this ).closest( 'li' ) ) + 1 ) + ') > a', $( this ).closest( 'li' ).closest( 'ul' ) ).focus();
+			}
+		} else if ( keyCode === 13 && $( this ).closest( 'li' ).hasClass( 'menu-item-has-children' ) ) {
+			// Enter, open subnav and focus first link.
+			e.preventDefault();
+
+			$( 'ul li:first a:first', $( this ).closest( 'li' ) ).focus();
+		} else if ( keyCode === 27 ) {
+			// Escape, close subnav and focus top level link.
+			e.preventDefault();
+
+			$( '> a', $( this ).closest( 'ul' ).closest( 'li' ) ).focus().trigger( 'click' );
+		}
+
+	} );
+
+	$( 'ul#sc-mega-menu li > a' ).on( 'mousedown', function( e ) {
+		if ( ! $( this ).is( ':focus' ) ) {
+			$( this ).data( 'mdown', true );
+		}
+	} );
+
+	$( 'ul#sc-mega-menu li > a' ).on( 'focus', function( e ) {
+		var mdown = $( this ).data( 'mdown' );
+		$( this ).removeData( 'mdown' );
+
+		if ( mdown ) {
+			// Focus came from a click, a click so ignore it.
+		} else {
+			// Focus came from tab, click any other activated siblings.
+			if ( $( '> li.activated-sub', $( this ).closest( 'li' ).closest( 'ul' ) ).not( $( this ).closest( 'li' ) ).length ) {
+				$( '> li.activated-sub > a', $( this ).closest( 'li' ).closest( 'ul' ) ).trigger( 'click' );
+			}
+
+			// Focus came from tab, click to activate.
+			if ( $( this ).closest( 'li' ).hasClass( 'menu-item-has-children' ) ) {
+				$( this ).trigger( 'click' );
+			}
+		}
+	});
+
+	// Eyebrow dropdowns.
+	$( 'ul#eyebrow-menu > li > a' ).on( 'keydown', function ( e ) {
+		// Get key pressed
+		var keyCode = e.keyCode || e.which;
+
+		if ( keyCode === 9 && e.shiftKey &&
+			( $( this ).closest( 'li' ).prev().hasClass( 'eyebrow-online' ) ||
+				$( this ).closest( 'li' ).prev().hasClass( 'eyebrow-local' ) ) ) {
+			// Tab+shift, go to previous top level link, or last link before.
+			e.preventDefault();
+
+			$( 'ul#eyebrow-menu > li:eq(' + ( $( 'ul#eyebrow-menu > li' ).index( $( this ).closest( 'li' ) ) - 1 ) + ') > a' ).trigger( 'click' ).focus();
+
+		} else if ( keyCode == 9 && e.shiftKey ) {
+			// Tab+shift, go to previous top level link, or last link before.
+			e.preventDefault();
+
+			if ( $( 'ul#eyebrow-menu > li' ).index( $( this ).closest( 'li' ) ) === 0 ) {
+				$( 'a.skip-link:first' ).focus();
+			} else {
+				$( 'ul#eyebrow-menu > li:eq(' + ( $( 'ul#eyebrow-menu > li' ).index( $( this ).closest( 'li' ) ) - 1 ) + ') > a' ).focus();
+			}
+
+		} else if ( keyCode === 9 &&
+			( $( this ).closest( 'li' ).next().hasClass( 'eyebrow-online' ) ||
+				$( this ).closest( 'li' ).next().hasClass( 'eyebrow-local' ) ) ) {
+			// Tab, go to next top level link and over local subnav.
+			e.preventDefault();
+
+			$( 'ul#eyebrow-menu > li:eq(' + ( $( 'ul#eyebrow-menu > li' ).index( $( this ).closest( 'li' ) ) + 1 ) + ') > a' ).trigger( 'click' ).focus();
+
+		} else if ( keyCode === 9 ) {
+			// Tab, go to next top level link, or next link after.
+			e.preventDefault();
+
+			if ( ( $( 'ul#eyebrow-menu > li' ).index( $( this ).closest( 'li' ) ) + 1 ) === $( 'ul#eyebrow-menu > li' ).length ) {
+				$( '#masthead .site-branding a:last' ).focus();
+			} else {
+				$( 'ul#eyebrow-menu > li:eq(' + ( $( 'ul#eyebrow-menu > li' ).index( $( this ).closest( 'li' ) ) + 1 ) + ') > a' ).focus();
+			}
+		} else if ( keyCode === 13 && $( this ).closest( 'li' ).hasClass( 'eyebrow-online' ) ) {
+			// Enter, open subnav and focus first link.
+			e.preventDefault();
+
+			$( '.online-location-dropdown a:first' ).focus();
+
+		} else if ( keyCode === 13 && $( this ).closest( 'li' ).hasClass( 'eyebrow-local' ) ) {
+			// Enter, open search and focus on text box.
+			e.preventDefault();
+
+			$( '#header-country-select input[type="text"]' ).focus();
+
+		}
+
+	} );
+
+	$( 'ul#eyebrow-menu > li > a' ).on( 'mousedown', function( e ) {
+		if ( ! $( this ).is( ':focus' ) ) {
+			$( this ).data( 'mdown', true );
+		}
+	} );
+
+	$( 'ul#eyebrow-menu > li > a' ).on( 'focus', function( e ) {
+		var mdown = $( this ).data( 'mdown' );
+		$( this ).removeData( 'mdown' );
+
+		if ( mdown ) {
+			// Focus came from a click, so ignore it.
+		} else {
+			// Focus came from tab, click any other activated siblings.
+			if ( ! $( this ).closest( 'li' ).hasClass( 'eyebrow-online' ) ) {
+				$( 'ul#eyebrow-menu > li.eyebrow-online > a.active-eyebrow' ).trigger( 'click' );
+			}
+			if ( ! $( this ).closest( 'li' ).hasClass( 'eyebrow-local' ) ) {
+				$( '.eyebrow-local a' ).removeClass( 'active-eyebrow' );
+				$( '.page-active-overlay' ).removeClass( 'overlay-active' );
+				$( '#header-country-select' ).removeClass( 'active' );
+			}
+		}
+	});
+
+	$( '.online-location-dropdown ul a' ).on( 'keydown', function( e ) {
+		// Get key pressed
+		var keyCode = e.keyCode || e.which;
+
+		if ( keyCode === 9 && e.shiftKey ) {
+			// Tab+shift, go to previous top level link, or last link before.
+			e.preventDefault();
+
+			if ( $( '.online-location-dropdown ul > li' ).index( $( this ).closest( 'li' ) ) === 0 ) {
+				$( 'ul#eyebrow-menu > li.eyebrow-online > a' ).focus();
+			} else {
+				$( '.online-location-dropdown ul > li:eq(' + ( $( '.online-location-dropdown ul > li' ).index( $( this ).closest( 'li' ) ) - 1 ) + ') > a' ).focus();
+			}
+
+		} else if ( keyCode === 9 ) {
+			// Tab, go to next top level link, or next link after.
+			e.preventDefault();
+
+			if ( ( $( '.online-location-dropdown ul > li' ).index( $( this ).closest( 'li' ) ) + 1 ) === $( '.online-location-dropdown ul > li' ).length ) {
+				$( 'ul#eyebrow-menu > li.eyebrow-online > a' ).focus();
+			} else {
+				$( '.online-location-dropdown ul > li:eq(' + ( $( '.online-location-dropdown ul > li' ).index( $( this ).closest( 'li' ) ) + 1 ) + ') > a' ).focus();
+			}
+
+		} else if ( keyCode === 27 ) {
+			// Escape, close subnav and focus top level link.
+			e.preventDefault();
+
+			$( 'ul#eyebrow-menu li.eyebrow-online > a' ).focus();
+		}
+
+	} );
+
+	$( '#header-country-select *' ).on( 'keydown', function( e ) {
+		// Get key pressed
+		var keyCode = e.keyCode || e.which;
+
+		if ( keyCode === 27 ) {
+			// Escape, close subnav and focus top level link.
+			e.preventDefault();
+
+			$( 'ul#eyebrow-menu li.eyebrow-local > a' ).focus();
+		}
+	} );
+
+	return false;
+
+} );

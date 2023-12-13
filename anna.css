@@ -1,0 +1,156 @@
+/* nav bar 2 */
+
+.tina{
+    margin-left:10px ;
+     font-weight:bold ;
+     padding: 15px;
+}
+
+.tina1{
+    margin-left:10px ;
+     font-weight:bold ;
+     padding: 15px;
+}
+
+
+a.tina:hover{
+    color: blue; 
+}
+
+a.tina1:hover{
+    color: blue; 
+}
+
+
+.tina:hover:before{
+    content: "";
+    position: absolute;
+    background-color:blue ;
+height: 3px;
+width: 70px;
+top: 112px;
+}
+
+.tina1:hover:before{
+    content: "";
+    position: absolute;
+    background-color:blue ;
+height: 3px;
+width: 92px;
+top: 112px;
+}
+
+
+/* end */
+/* next nav bar */
+.hand{
+    background-image:   url('./Girls-01-2000-169-1536x864.avif');
+    width: 100%;
+    background-position: center;
+    background-size: cover;
+}
+
+
+.dede{
+    color: white;
+    background-color: blue;
+    border: 1px solid black;
+    border-radius: 30px ;
+    width: 50%;
+    padding:18px;
+}
+
+
+.dede:hover{
+    text-decoration: underline;
+    background-color: #334155;
+}
+
+/* end */
+/* begigning of after  img section */
+
+.boo{
+    background-image:linear-gradient( rgb(247,251,254), rgb(255,255,255),rgb(254,254,254));
+    width: 100%;
+    
+}
+
+.coo{
+    border: 2px solid blue;
+    border-radius: 30px;
+    padding: 4px;
+    width: 50%;
+}
+.coo:hover{
+    background-color: #334155;
+    text-decoration: underline;
+    border: none;
+}
+
+
+
+
+.coo1:hover{
+    background-color: #334155;
+    text-decoration: underline;
+    border: none;
+}
+
+
+.coo2:hover{
+    background-color: #334155;
+    text-decoration: underline;
+    border: none;
+}
+/* end */
+/* next three img of a girl holding phone */
+
+.gee{
+    background-color: rgb(247,247,247);
+    margin:1%;
+}
+
+/* end */
+
+/* beginning of imgs with write ups on top of it */
+
+.viky{
+    background-image:url("./glob banner.webp");
+width: 80%;
+position: relative;
+top: 70px;
+left: 10%;
+
+
+}
+
+.dede3:hover{
+    text-decoration: underline;
+    background-color: #334155;
+}
+
+.dede2:hover{
+    text-decoration: underline;
+    background-color: #334155;
+}
+
+/* end */
+
+/* design of the footer part */
+
+.las{
+    background-image: linear-gradient(rgb(42,61,140),rgb(29,71,157),rgb(16,82,176),rgb(10,89,187));
+}
+
+.betin{
+    position: relative;
+    top: -100px;
+    right: 100px;
+}
+
+/* end */
+/* media query design */
+
+@media screen  and (max-width:1075px){
+    
+}
